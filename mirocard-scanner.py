@@ -7,10 +7,12 @@ import struct
 from base64 import b64decode,b64encode
 import sys
 
+DEBUG = 0
 
 class ScanDelegate(DefaultDelegate):
 
     def handleDiscovery(self, dev, isNewDev, isNewData):
+        global DEBUG
         if(str(dev.addr).startswith("60:77:71")):
             print(strftime("%Y-%m-%d %H:%M:%S", gmtime()), dev.addr, dev.getScanData()[0][2])
             rawbytes = str(dev.getScanData()[0][2])
@@ -18,13 +20,15 @@ class ScanDelegate(DefaultDelegate):
             msb3 = rawbytes[10:14]
             lsb3 = rawbytes[12:16]
 
-            # print("MSB: {} \t LSB: {}".format(msb3,lsb3))
+            if DEBUG:
+                print("MSB: {} \t LSB: {}".format(msb3,lsb3))
 
-            humidity_raw = ((struct.unpack('<b', bytes.fromhex(msb3[2:]))[0]&0x03)<<8) + struct.unpack('<b', bytes.fromhex(msb3[0:2]))[0]
+            humidity_raw = ((struct.unpack('>h', bytes.fromhex(msb3[2:]+msb3[0:2]))[0]&0x03FF)) 
 
-            temperature_raw = ((struct.unpack('<b', bytes.fromhex(lsb3[0:2]))[0]&0xFC)>>2) + (struct.unpack('<b', bytes.fromhex(lsb3[2:]))[0]<<6)
+            temperature_raw = (struct.unpack('>h', bytes.fromhex(lsb3[2:]+lsb3[0:2]))[0]&0xFFFC)>>2
 
-            # print("Raw H: {} \t Raw T: {}".format(humidity_raw, temperature_raw))
+            if DEBUG:
+                print("Raw H: {} \t Raw T: {}".format(humidity_raw, temperature_raw))
 
             temperature = (-40.0 + temperature_raw / 100.0)
             humidity =  (humidity_raw / 10.0)
