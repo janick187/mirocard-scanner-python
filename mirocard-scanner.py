@@ -6,6 +6,8 @@ from bluepy.btle import Scanner, DefaultDelegate, BTLEException
 import struct
 from base64 import b64decode,b64encode
 import sys
+import os.path
+
 
 DEBUG = 0
 
@@ -32,7 +34,12 @@ class ScanDelegate(DefaultDelegate):
 
             temperature = (-40.0 + temperature_raw / 100.0)
             humidity =  (humidity_raw / 10.0)
-
+            
+            f = open("values.txt", "w+")
+            f.write("Temperature: {}".format(temperature))
+            f.write("\nHumidity: {}".format(humidity))
+            f.close()
+            
             print("H: {:.3f}% \t T: {:.3f} C".format(humidity, temperature))
 
             sys.stdout.flush()
