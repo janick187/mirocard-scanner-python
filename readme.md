@@ -23,7 +23,7 @@ $ sudo python3 mirocard-scanner.py
 
 ## RUN Flask web server
 ```
-set FLASK_APP=ABC.py
+set FLASK_APP=app.py
 set FLASK_ENV=development
 flask run -h [yourIP] -p 8080
 ```
